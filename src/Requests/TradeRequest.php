@@ -2,11 +2,26 @@
 
 namespace MiroslawLach\KangaPHPAPI\Requests;
 
+use GuzzleHttp\Exception\GuzzleException;
+use MiroslawLach\KangaPHPAPI\Exceptions\InvalidPermissionsException;
+use MiroslawLach\KangaPHPAPI\Exceptions\InvalidResponseStructureException;
+use MiroslawLach\KangaPHPAPI\Exceptions\InvalidSignatureException;
 use MiroslawLach\KangaPHPAPI\Exceptions\NotImplementedException;
+use MiroslawLach\KangaPHPAPI\Exceptions\OrderNotCanceledException;
+use MiroslawLach\KangaPHPAPI\Exceptions\TooManyCallsException;
+use MiroslawLach\KangaPHPAPI\Responses\CancelOrder;
+use MiroslawLach\KangaPHPAPI\Responses\OrderBook;
 use MiroslawLach\KangaPHPAPI\Types\Type;
 
 class TradeRequest
 {
+    private Client $client;
+
+    public function __construct(Client $client)
+    {
+        $this->client = $client;
+    }
+
     /**
      * Returns the list of all markets. This call will be deprecated in the near future.
      *
@@ -20,21 +35,43 @@ class TradeRequest
     /**
      * Returns the order book for the specified market (cached every 2 seconds).
      *
-     * @throws NotImplementedException
+     * @throws GuzzleException
+     * @throws InvalidPermissionsException
+     * @throws InvalidResponseStructureException
+     * @throws InvalidSignatureException
+     * @throws OrderNotCanceledException
+     * @throws TooManyCallsException
      */
-    public function orderBook(string $market)
+    public function orderBook(string $market): OrderBook
     {
-        throw new NotImplementedException();
+        $params = [
+            'market' => $market
+        ];
+
+        $response = $this->client->postPrivate('market/order/book', $params);
+
+        return new OrderBook($response);
     }
 
     /**
      * Cancels the order identified by orderId.
      *
-     * @throws NotImplementedException
+     * @throws GuzzleException
+     * @throws InvalidPermissionsException
+     * @throws InvalidResponseStructureException
+     * @throws InvalidSignatureException
+     * @throws OrderNotCanceledException
+     * @throws TooManyCallsException
      */
-    public function orderCancel(string $orderId)
+    public function orderCancel(string $orderId): CancelOrder
     {
-        throw new NotImplementedException();
+        $params = [
+            'orderId' => $orderId
+        ];
+
+        $response = $this->client->postPrivate('market/order/cancel', $params);
+
+        return new CancelOrder($response);
     }
 
     /**
