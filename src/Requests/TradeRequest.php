@@ -6,11 +6,16 @@ use GuzzleHttp\Exception\GuzzleException;
 use MiroslawLach\KangaPHPAPI\Exceptions\InvalidPermissionsException;
 use MiroslawLach\KangaPHPAPI\Exceptions\InvalidResponseStructureException;
 use MiroslawLach\KangaPHPAPI\Exceptions\InvalidSignatureException;
+use MiroslawLach\KangaPHPAPI\Exceptions\InvalidWalletKeyException;
 use MiroslawLach\KangaPHPAPI\Exceptions\NotImplementedException;
 use MiroslawLach\KangaPHPAPI\Exceptions\OrderNotCanceledException;
 use MiroslawLach\KangaPHPAPI\Exceptions\TooManyCallsException;
 use MiroslawLach\KangaPHPAPI\Responses\CancelOrder;
+use MiroslawLach\KangaPHPAPI\Responses\CreateOrder;
+use MiroslawLach\KangaPHPAPI\Responses\GetOrder;
 use MiroslawLach\KangaPHPAPI\Responses\OrderBook;
+use MiroslawLach\KangaPHPAPI\Responses\OrderHistory;
+use MiroslawLach\KangaPHPAPI\Responses\OrderList;
 use MiroslawLach\KangaPHPAPI\Types\Type;
 
 class TradeRequest
@@ -41,6 +46,7 @@ class TradeRequest
      * @throws InvalidSignatureException
      * @throws OrderNotCanceledException
      * @throws TooManyCallsException
+     * @throws InvalidWalletKeyException
      */
     public function orderBook(string $market): OrderBook
     {
@@ -62,6 +68,7 @@ class TradeRequest
      * @throws InvalidSignatureException
      * @throws OrderNotCanceledException
      * @throws TooManyCallsException
+     * @throws InvalidWalletKeyException
      */
     public function orderCancel(string $orderId): CancelOrder
     {
@@ -75,40 +82,108 @@ class TradeRequest
     }
 
     /**
-     * @throws NotImplementedException
+     * Creates a new order. On success returns orderId.
+     *
+     * @throws GuzzleException
+     * @throws InvalidPermissionsException
+     * @throws InvalidResponseStructureException
+     * @throws InvalidSignatureException
+     * @throws OrderNotCanceledException
+     * @throws TooManyCallsException
+     * @throws InvalidWalletKeyException
      */
-    public function orderCreate(string $quantity, Type $type, string $market, ?string $price = null, ?string $valueLimit = null)
+    public function orderCreate(string $quantity, Type $type, string $market, ?string $price = null, ?string $valueLimit = null): CreateOrder
     {
-        throw new NotImplementedException();
+        $params = [
+            'quantity' => $quantity,
+            'type' => $type->value,
+            'market' => $market,
+        ];
+
+        if ($price !== null) {
+            $params['price'] = $price;
+        }
+
+        if ($valueLimit !== null) {
+            $params['valueLimit'] = $valueLimit;
+        }
+
+        $response = $this->client->postPrivate('market/order/create', $params);
+
+        return new CreateOrder($response);
     }
 
     /**
      * Returns the details of the specified order.
      *
-     * @throws NotImplementedException
+     * @throws GuzzleException
+     * @throws InvalidPermissionsException
+     * @throws InvalidResponseStructureException
+     * @throws InvalidSignatureException
+     * @throws OrderNotCanceledException
+     * @throws TooManyCallsException
+     * @throws InvalidWalletKeyException
      */
-    public function orderGet(string $orderId, ?string $walletKey = null)
+    public function orderGet(string $orderId, ?string $walletKey = null): GetOrder
     {
-        throw new NotImplementedException();
+        $params = [
+            'orderId' => $orderId,
+        ];
+
+        if ($walletKey !== null) {
+            $params['walletKey'] = $walletKey;
+        }
+
+        $response = $this->client->postPrivate('market/order/get', $params);
+
+        return new GetOrder($response);
     }
 
     /**
      * Returns up to 50 recent orders (both fulfilled and canceled) from the specified market.
      *
-     * @throws NotImplementedException
+     * @throws GuzzleException
+     * @throws InvalidPermissionsException
+     * @throws InvalidResponseStructureException
+     * @throws InvalidSignatureException
+     * @throws OrderNotCanceledException
+     * @throws TooManyCallsException
+     * @throws InvalidWalletKeyException
      */
-    public function orderHistoryList(string $market)
+    public function orderHistoryList(string $market): OrderHistory
     {
-        throw new NotImplementedException();
+        $params = [
+            'market' => $market,
+        ];
+
+        $response = $this->client->postPrivate('market/history/list', $params);
+
+        return new OrderHistory($response);
     }
 
     /**
      * Returns up to 100 active orders from the specified market.
      *
-     * @throws NotImplementedException
+     * @throws GuzzleException
+     * @throws InvalidPermissionsException
+     * @throws InvalidResponseStructureException
+     * @throws InvalidSignatureException
+     * @throws OrderNotCanceledException
+     * @throws TooManyCallsException
+     * @throws InvalidWalletKeyException
      */
-    public function orderList(string $market, ?int $limit = null)
+    public function orderList(string $market, ?int $limit = null): OrderList
     {
-        throw new NotImplementedException();
+        $params = [
+            'market' => $market,
+        ];
+
+        if ($limit !== null) {
+            $params['limit'] = $limit;
+        }
+
+        $response = $this->client->postPrivate('market/history/list', $params);
+
+        return new OrderList($response);
     }
 }
