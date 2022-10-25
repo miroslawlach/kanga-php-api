@@ -2,8 +2,9 @@
 
 namespace MiroslawLach\KangaPHPAPI\Types;
 
-enum Result: string
+class Result
 {
-    case ok = 'ok';
-    case fail = 'fail';
+    public const OK = 'ok';
+
+    public const FAIL = 'fail';
 }

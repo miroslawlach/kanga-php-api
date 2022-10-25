@@ -2,8 +2,9 @@
 
 namespace MiroslawLach\KangaPHPAPI\Types;
 
-enum Type: string
+class Type
 {
-    case BID = 'BID';
-    case ASK = 'ASK';
+    public const BID = 'BID';
+
+    public const ASK = 'ASK';
 }

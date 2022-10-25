@@ -26,15 +26,23 @@ class Response
             throw new InvalidResponseStructureException();
         }
 
-        if ($payload['result'] === ResultEnum::fail->value) {
-            match ($payload['code']) {
-                401, 9000 => throw new InvalidSignatureException(),
-                403, 9001 => throw new InvalidPermissionsException(),
-                429 => throw new TooManyCallsException(),
-                1001 => throw new OrderNotCanceledException(),
-                9002 => throw new InvalidWalletKeyException(),
-                default => throw new InvalidResponseStructureException(),
-            };
+        if ($payload['result'] === ResultEnum::FAIL) {
+            switch ($payload['code']) {
+                case 401:
+                case 9000:
+                    throw new InvalidSignatureException();
+                case 403:
+                case 9001:
+                    throw new InvalidPermissionsException();
+                case 429:
+                    throw new TooManyCallsException();
+                case 1001:
+                    throw new OrderNotCanceledException();
+                case 9002:
+                    throw new InvalidWalletKeyException();
+                default:
+                    throw new InvalidResponseStructureException();
+            }
         }
     }
 }

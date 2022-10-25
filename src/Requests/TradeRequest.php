@@ -3,6 +3,7 @@
 namespace MiroslawLach\KangaPHPAPI\Requests;
 
 use GuzzleHttp\Exception\GuzzleException;
+use MiroslawLach\KangaPHPAPI\Exceptions\InvalidParamException;
 use MiroslawLach\KangaPHPAPI\Exceptions\InvalidPermissionsException;
 use MiroslawLach\KangaPHPAPI\Exceptions\InvalidResponseStructureException;
 use MiroslawLach\KangaPHPAPI\Exceptions\InvalidSignatureException;
@@ -20,7 +21,7 @@ use MiroslawLach\KangaPHPAPI\Types\Type;
 
 class TradeRequest
 {
-    private Client $client;
+    private $client;
 
     public function __construct(Client $client)
     {
@@ -91,12 +92,17 @@ class TradeRequest
      * @throws OrderNotCanceledException
      * @throws TooManyCallsException
      * @throws InvalidWalletKeyException
+     * @throws InvalidParamException
      */
-    public function orderCreate(string $quantity, Type $type, string $market, ?string $price = null, ?string $valueLimit = null): CreateOrder
+    public function orderCreate(string $quantity, string $type, string $market, ?string $price = null, ?string $valueLimit = null): CreateOrder
     {
+        if (! in_array($type, [Type::ASK, Type::BID])) {
+            throw new InvalidParamException();
+        }
+
         $params = [
             'quantity' => $quantity,
-            'type' => $type->value,
+            'type' => $type,
             'market' => $market,
         ];
 
